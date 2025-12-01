@@ -1,80 +1,109 @@
-# Proyecto de Gestión de Contenido Audiovisual (POO)
+# Sistema de Gestión de Contenido Audiovisual (Refactorizado)
 
-## Descripción del Proyecto
+Este proyecto es una evolución del sistema de gestión de contenidos audiovisuales (Películas, Series, Documentales, etc.). El objetivo principal de esta versión es aplicar principios de ingeniería de software avanzada, incluyendo **Código Limpio**, principios **SOLID**, patrón **MVC** y **Persistencia de Datos**.
 
-Este proyecto es una aplicación de consola desarrollada en Java que sirve como un sistema de gestión para un catálogo de contenido audiovisual. Su propósito principal es demostrar la aplicación de conceptos avanzados de Programación Orientada a Objetos (POO) de una manera práctica y cohesiva.
+##  Tabla de Contenidos
+- [Descripción del Proyecto](#descripción-del-proyecto)
+- [Cambios Implementados](#cambios-implementados)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Requisitos Previos](#requisitos-previos)
+- [Instalación y Clonación](#instalación-y-clonación)
+- [Cómo Ejecutar el Proyecto](#cómo-ejecutar-el-proyecto)
+- [Ejecución de Pruebas](#ejecución-de-pruebas)
+- [Autor](#autor)
 
-El sistema modela una jerarquía de clases de contenido audiovisual, partiendo de una clase abstracta `ContenidoAudiovisual` y especializándose en tipos concretos como `Pelicula`, `SerieDeTV`, `Documental`, `Cortometraje` y `VideoMusical`.
+##  Descripción del Proyecto
+El sistema permite gestionar un catálogo de contenidos audiovisuales. Los usuarios pueden agregar películas, series de TV y documentales, así como visualizar los detalles de cada uno.
 
-### Características Principales
+En esta actualización, el sistema ha dejado de ser volátil (datos en memoria) para guardar la información en archivos físicos (CSV), permitiendo recuperar los datos tras reiniciar la aplicación.
 
-*   **Herencia:** Utiliza una clase base abstracta (`ContenidoAudiovisual`) para definir atributos y comportamientos comunes, que luego son extendidos por subclases específicas.
-*   **Polimorfismo:** Permite tratar a todos los objetos de contenido audiovisual de manera uniforme a través de la clase base, por ejemplo, al mostrarlos en un catálogo general.
-*   **Agregación:** Modela relaciones "tiene un" donde los objetos tienen ciclos de vida independientes, como una `Pelicula` que tiene un elenco de `Actores`.
-*   **Composición:** Implementa relaciones "es parte de" donde el ciclo de vida de un objeto depende de otro, como una `SerieDeTV` que se compone de `Temporadas`.
-*   **Código Extensible:** La estructura del proyecto está diseñada para ser fácilmente ampliable con nuevos tipos de contenido audiovisual o nuevas relaciones.
+##  Cambios Implementados
 
-### Problema que Resuelve
+### 1. Manejo de Archivos (Persistencia)
+- Se implementó la clase `ManejadorArchivos` para leer y escribir en formato **CSV**.
+- Se utiliza `BufferedReader` y `BufferedWriter` para un rendimiento óptimo.
+- **Serialización personalizada:** Los objetos complejos (listas de actores, temporadas) se almacenan en una sola columna utilizando separadores especiales (`|`) para mantener la integridad en un archivo plano.
 
-Este proyecto resuelve el desafío educativo de aplicar la teoría de la POO en un escenario práctico. Proporciona un modelo funcional que organiza datos complejos y sus interrelaciones (como el elenco de una película o las temporadas de una serie), demostrando cómo la POO ayuda a crear software más organizado, mantenible y escalable.
+### 2. Refactorización y Código Limpio
+- **Nombres Significativos:** Se renombraron variables y métodos para que expliquen por sí mismos su función.
+- **Métodos Pequeños:** Se dividieron métodos largos (como la lectura del archivo) en sub-métodos privados más pequeños (`parsearActores`, `parsearTemporadas`).
+- **Eliminación de redundancia:** Se optimizó el uso de constructores y herencia.
 
----
+### 3. Principios SOLID
+- **SRP (Responsabilidad Única):** Las clases del modelo (`Pelicula`, `Actor`) ya no imprimen en consola. Esa responsabilidad se delegó exclusivamente a la Vista.
+- **OCP (Abierto/Cerrado):** El sistema permite agregar nuevos tipos de contenido extendiendo `ContenidoAudiovisual` sin modificar la lógica base de persistencia.
+- **DIP (Inversión de Dependencias):** El `ManejadorArchivos` no depende de una ruta fija, permitiendo inyectar archivos de prueba.
 
-## Instrucciones de Instalación y Uso
+### 4. Patrón MVC (Modelo-Vista-Controlador)
+Se reestructuró el código separando las responsabilidades:
+- **Model:** Lógica de negocio y entidades.
+- **View:** Interfaz de usuario por consola.
+- **Controller:** Orquestador que conecta el modelo, la vista y la persistencia.
 
-Para clonar y ejecutar este proyecto en tu máquina local, sigue los siguientes pasos.
+##  Estructura del Proyecto
 
-### Prerrequisitos
+```text
+src/
+├── poo/
+│   └── PruebaSistemaFuncional.java  # Punto de entrada (Main)
+├── uni1a/
+│   ├── controller/
+│   │   └── SistemaController.java   # Controlador principal
+│   ├── model/                       # Entidades de negocio
+│   │   ├── Actor.java
+│   │   ├── ContenidoAudiovisual.java (Abstracta)
+│   │   ├── Pelicula.java
+│   │   ├── SerieDeTV.java
+│   │   ├── Documental.java
+│   │   ├── Temporada.java
+│   │   └── Investigador.java
+│   ├── persistence/
+│   │   └── ManejadorArchivos.java   # Lógica de lectura/escritura CSV
+│   └── view/
+│       └── ConsolaVista.java        # Interfaz de usuario (System.out)
+test/
+└── uni1a/
+    └── ContenidoTest.java           # Pruebas Unitarias (JUnit 5)
+```
 
-*   **Git:** Debes tener Git instalado para clonar el repositorio.
-*   **Java Development Kit (JDK):** Asegúrate de tener instalado un JDK (versión 8 o superior).
+##  Requisitos Previos
+- **Java JDK:** Versión 11 o superior.
+- **IDE:** IntelliJ IDEA, Eclipse o NetBeans.
+- **JUnit 5:** Para ejecutar las pruebas unitarias.
 
-### Pasos para la Instalación
+##  Instalación y Clonación
 
-1.  **Clonar el Repositorio:**
-    Abre una terminal o consola y ejecuta el siguiente comando. 
+Para obtener una copia del proyecto en tu máquina local, ejecuta el siguiente comando en tu terminal:
 
-    ```bash
-    git clone https://github.com/ErickHerrera12/TareaPOO.git
-    ```
+```bash
+git clone https://github.com/ErickHerrera12/TareaPOO.git
+```
 
-### Cómo Ejecutar la Aplicación
+Luego, abre el proyecto en tu IDE de preferencia.
 
-Puedes ejecutar la aplicación desde un IDE como Eclipse o directamente desde la línea de comandos.
+## ▶️ Cómo Ejecutar el Proyecto
 
-**Opción 1: Ejecutar desde un IDE (Recomendado)**
+1. Navega a la carpeta `src/poo/`.
+2. Ubica la clase `PruebaSistemaFuncional.java`.
+3. Haz clic derecho sobre el archivo y selecciona **Run 'PruebaSistemaFuncional.main()'**.
+4. La aplicación iniciará en la consola mostrándote el menú principal.
 
-1.  Abre Eclipse (o tu IDE de preferencia).
-2.  Ve a `File > Import...`.
-3.  Selecciona `General > Existing Projects into Workspace` y haz clic en `Next`.
-4.  En `Select root directory`, busca la carpeta del proyecto que acabas de clonar.
-5.  Asegúrate de que el proyecto esté seleccionado y haz clic en `Finish`.
-6.  En el explorador de paquetes, navega a `src/poo/`.
-7.  Haz clic derecho en el archivo `PruebaSistemaFuncional.java` y selecciona `Run As > Java Application`.
+**Nota:** La primera vez que guardes datos, se creará automáticamente el archivo `data_contenidos.csv` en la raíz del proyecto.
 
-**Opción 2: Ejecutar desde la Línea de Comandos**
+##  Ejecución de Pruebas
 
-1.  Abre una terminal en la raíz del directorio del proyecto.
-2.  **Compilar el código:**
-    El siguiente comando compila todos los archivos `.java` que se encuentran en el paquete `uni1a`.
+El proyecto cuenta con pruebas unitarias que verifican la lógica de negocio y la persistencia de datos.
 
-    ```bash
-    javac -d . src/uni1a/*.java
-    ```
-    *Nota: Si el comando anterior da problemas, prueba compilando desde la carpeta `src`:*
-    ```bash
-    cd src
-    javac uni1a/*.java
-    cd ..
-    ```
+1. Navega a la carpeta `test/uni1a/`.
+2. Ubica el archivo `ContenidoTest.java`.
+3. Haz clic derecho y selecciona **Run 'ContenidoTest'**.
+4. Verifica que todos los tests pasen (barra verde).
 
-3.  **Ejecutar la clase principal:**
-    Este comando ejecuta el método `main` de la clase `PruebaSistemaFuncional`, especificando que el classpath (`-cp`) es el directorio actual (`.`).
+Las pruebas incluyen:
+- Creación de objetos y validación de atributos.
+- Verificación de relaciones (Actores en Películas, Temporadas en Series).
+- **Prueba de Integración:** Guardado y carga de datos desde un archivo temporal para asegurar que la persistencia funciona correctamente.
 
-    ```bash
-    java uni1a.PruebaSistemaFuncional
-    ```
-
-### Salida Esperada
-
-Al ejecutar la aplicación, deberías ver en la consola un resumen detallado de todo el contenido audiovisual creado, incluyendo sus actores, temporadas, investigadores y artistas asociados, demostrando que todas las funcionalidades y relaciones se han implementado correctamente.
+##  Autor
+**Erick Herrera** - *Desarrollo, Refactorización y Documentación*
+```
